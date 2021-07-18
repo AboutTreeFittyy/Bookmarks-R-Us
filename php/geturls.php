@@ -16,7 +16,7 @@ if ($uname != ""){
 			if(mysqli_num_rows($result) > 0){
 				//Fetch rows
 				while($row = mysqli_fetch_array($result)){
-					echo "<tr><td><div id='".$row['url']."'><a href='".$row['url']."'>".$row['url']."</a><button onClick='edit_click(this.id)' id='".$row['url']."'>Edit</button><button onClick='delete_click(this.id)' id='".$row['url']."'>Delete</button></div></td></tr>";
+					echo "<tr><td><div id='div".$row['url']."'><a href='".$row['url']."'>".$row['url']."</a><button onClick='edit_click(this.id)' id='".$row['url']."'>Edit</button><button name='delete' onClick='delete_click(this.id)' id='".$row['url']."'>Delete</button></div></td></tr>";
 				}
 			}else{
 				echo "<tr><td>No URLS have been added by you yet.</td></tr>";

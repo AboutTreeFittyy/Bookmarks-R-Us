@@ -44,64 +44,100 @@ if(!isset($_SESSION['uname'])){
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 <script>
-//setup validator
-jQuery.validator.setDefaults({
-  debug: true,
-  success: "valid"
-});
+var addvalid = false;
+var editvalid = false;
 //set the validator to check for urls when a new one is being added
 $( "#addurl" ).validate({
-  rules: {
-    field: {
-      required: true,
-      url: true
-    }
-  }
+	rules: {
+		field: {
+			required: true,
+			url: true
+		}
+	},
+	success: function(label) {
+    //document.getElementById("addurl").disabled = false;
+	console.log("SUCCESS");
+	addvalid = true;//set flag to allow for submission
+  },
+	invalidHandler: function(event, validator) {
+    //document.getElementById("addurl").disabled = true;
+	console.log("FAILURE");
+	addvalid = false;//set flag to stop submitting form
+  },
+  submitHandler: function(){ 
+		if(addvalid){
+			var name = "<?php echo $_SESSION['uname'] ?>";
+			//console.log(name);		
+			var nurl=$("#url").val();
+			$.ajax({
+				url:'php/addurl.php',
+				method:'POST',
+				data:{nurl:nurl,name:name},
+				success:function(response){
+					//console.log(response);
+					if(response == 1){
+						console.log("URL added");
+					}else{
+						console.log("Failed to add URL");
+					}
+				}
+			});
+		}
+	}
 });
 
+//handler for the edit button, hooks to make form for editing
 function edit_click(id){
-	var html = document.getElementById(id);
+	var html = document.getElementById("div"+id);
 	var div = '<form id="editurl"><label>URL:</label><input class="left" name="field" value="'+id+'"type="text" id="url'+id+'"><button id="'+id+'">Save</button></form>';
 	html.innerHTML = div;
 	//Now add the validation check after its added to the DOM
 	$( "#editurl" ).validate({
-	  rules: {
-		field: {
-		  required: true,
-		  url: true
-		}
-	  }
-	});
-} 
-
-//this is needed since the list is added dynamically. 
-//The on click is set for the parent which exists at start
-//It will then execute for any button events inside this parent container
-$('#bms').on('click', 'button', function() {
-	var id = event.target.id;
-	var newrl = document.getElementById('url'+id).value;
-	//console.log("NEWURL: "+newrl);
-	var name = "<?php echo $_SESSION['uname'] ?>";
-	$.ajax({
-		url:'php/editurl.php',
-		method:'POST',
-		data:{name:name,id:id,newrl:newrl},
-		success:function(response){
-			if(response){
-				console.log("URL Updated");
-				var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
-				document.getElementById(id).innerHTML = div;//update it back to normal list with the new value
-			}else{
-				console.log("Error Updating URL");
+		rules: {
+			field: {
+				required: true,
+				url: true
 			}
-		}
+		},
+		success: function(label) {
+			console.log("SUCCESS");
+			editvalid = true;//set flag to allow for submission
+		},
+		invalidHandler: function(event, validator) {
+			console.log("FAILURE");
+			editvalid = false;//set flag to stop submitting form
+		},
+		submitHandler: function(){$('#bms').on('click', 'button', function(){
+			if(editvalid){
+				//first check this isn't the delete button, as both will trigger this
+				if(event.target.name != "delete"){
+					var id = event.target.id;
+					var newrl = document.getElementById('url'+id).value;
+					var name = "<?php echo $_SESSION['uname'] ?>";
+					$.ajax({
+						url:'php/editurl.php',
+						method:'POST',
+						data:{name:name,id:id,newrl:newrl},
+						success:function(response){
+							if(response){
+								console.log("URL Updated");
+								var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
+								document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
+								document.getElementById("div"+id).id = "div"+newrl;
+							}else{
+								console.log("Error Updating URL");
+							}
+						}
+					});
+				}
+			}
+		})}
 	});
-});
+}
 
 //pretty straightforward, just posts data to the backend so it knows what to remove
 //then it removes the element from the page on success so it doesn't need to be reloaded
 function delete_click(id){
-	//console.log("ID: "+id);
 	var name = "<?php echo $_SESSION['uname'] ?>";
 	$.ajax({
 		url:'php/deleteurl.php',
@@ -110,7 +146,7 @@ function delete_click(id){
 		success:function(response){
 			if(response){
 				console.log("URL Removed");
-				document.getElementById(id).remove();//remove it from the list
+				document.getElementById("div"+id).remove();//remove it from the list
 			}else{
 				console.log("Error Removing URL");
 			}
@@ -134,28 +170,6 @@ $(document).ready(function(){
 				console.log("Failed to get URLs");
 			}
 		}
-	});
-});
-
-//adds the url when activated
-$(document).ready(function(){
-	$("#addbutton").click(function(){		
-		var name = "<?php echo $_SESSION['uname'] ?>";
-		//console.log(name);		
-		var nurl=$("#url").val();
-		$.ajax({
-			url:'php/addurl.php',
-			method:'POST',
-			data:{nurl:nurl,name:name},
-			success:function(response){
-				//console.log(response);
-				if(response == 1){
-					console.log("URL added");
-				}else{
-					console.log("Failed to add URL");
-				}
-			}
-		});
 	});
 });
 </script>
