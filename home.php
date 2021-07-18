@@ -108,15 +108,13 @@ function edit_click(id){
 			console.log("FAILURE");
 			editvalid = false;//set flag to stop submitting form
 		},
-		submitHandler: function(){$('#bms').on('click', 'button', function(){
+		submitHandler: function(event){
 			console.log("Here");
 			if(editvalid){
 				//first check this isn't the delete button, as both will trigger this
 				if(event.target.name != "delete"){
-					var id = event.target.id;
 					var newrl = document.getElementById('url'+id).value;
 					var name = "<?php echo $_SESSION['uname'] ?>";
-					//console.log("IDDDD:"+id);
 					//first check for duplicate of this for further validation
 					$.ajax({
 						url:'php/checkurls.php',
@@ -150,8 +148,7 @@ function edit_click(id){
 					});
 					
 				}
-			}
-		})}
+			}	}
 	});
 }
 
