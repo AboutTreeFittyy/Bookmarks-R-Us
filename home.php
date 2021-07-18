@@ -46,7 +46,29 @@ if(!isset($_SESSION['uname'])){
 <script>
 var addvalid = false;
 var editvalid = false;
-
+function siteExists(url){
+	//now try to update
+	$.ajax({
+		url:'php/checkactive.php',
+		method:'POST',
+		data:{url:url},
+		dataType: 'JSON',
+		error: function(xhr, error){
+			console.debug(xhr); 
+			console.debug(error);
+		},
+		success:function(response){
+			//console.log("Response: "+response);
+			if(response == 1){
+				console.log("URL Active");
+				return true;
+			}else{
+				console.log("URL Inactive");
+				return false;
+			}
+		}
+	});
+}
 //set the validator to check for urls when a new one is being added
 $( "#addurl" ).validate({
 	rules: {
@@ -57,50 +79,69 @@ $( "#addurl" ).validate({
 	},
 	success: function(label) {
 	console.log("SUCCESS");
-	addvalid = true;//set flag to allow for submission
+	//confirm site is active by checking it with a request
+	addvalid = true;
   },
 	invalidHandler: function(event, validator) {
 	console.log("FAILURE");
 	addvalid = false;//set flag to stop submitting form
   },
-  submitHandler: function(){ 
+	submitHandler: function(){ 
 		if(addvalid){
-			var name = "<?php echo $_SESSION['uname'] ?>";	
-			var newrl=$("#url").val();
-			//console.log(newrl);
+			var url=$("#url").val();
 			$.ajax({
-				url:'php/checkurls.php',
+				url:'php/checkactive.php',
 				method:'POST',
-				data:{name:name,newrl:newrl},
+				data:{url:url},
 				dataType: 'JSON',
+				error: function(xhr, error){
+					console.debug(xhr); 
+					console.debug(error);
+				},
 				success:function(response){
-					if(!response){
-						console.log("No Duplicate Response: "+response);
-						//now try to update
+					if(response == 1){
+						console.log("URL Active");
+						var name = "<?php echo $_SESSION['uname'] ?>";	
+						var newrl=$("#url").val();
 						$.ajax({
-							url:'php/addurl.php',
+							url:'php/checkurls.php',
 							method:'POST',
-							data:{newrl:newrl,name:name},
+							data:{name:name,newrl:newrl},
 							dataType: 'JSON',
-							error: function(xhr, error){
-								console.debug(xhr); 
-								console.debug(error);
-							},
 							success:function(response){
-								//console.log("Response: "+response);
-								if(response == 1){
-									console.log("URL added");
-								}else{
-									console.log("Failed to add URL");
+								if(!response){
+									console.log("No Duplicate Response: "+response);
+									//now try to update
+									$.ajax({
+										url:'php/addurl.php',
+										method:'POST',
+										data:{newrl:newrl,name:name},
+										dataType: 'JSON',
+										error: function(xhr, error){
+											console.debug(xhr); 
+											console.debug(error);
+										},
+										success:function(response){
+											//console.log("Response: "+response);
+											if(response == 1){
+												console.log("URL added");
+											}else{
+												console.log("Failed to add URL");
+											}
+										}
+									});
+								}else{					
+									console.log("Duplicate Response: "+response);
 								}
 							}
-						});
-					}else{					
-						console.log("Duplicate Response: "+response);
+						});	//end of ajax call to check urls
+					}else{
+						console.log("URL Inactive");
+						return false;
 					}
 				}
-			});	
-		}
+			});
+		}//end of isvalid if
 	}
 });
 
@@ -133,44 +174,62 @@ function edit_click(id){
 		},
 		submitHandler: function(event){
 			if(editvalid){
-				//first check this isn't the delete button, as both will trigger this
-				if(event.target.name != "delete"){
-					var newrl = document.getElementById('url'+id).value;
-					var name = "<?php echo $_SESSION['uname'] ?>";
-					//first check for duplicate of this for further validation
-					$.ajax({
-						url:'php/checkurls.php',
-						method:'POST',
-						data:{name:name,newrl:newrl},
-						dataType: 'JSON',
-						success:function(response){
-							if(!response){
-								console.log("No Duplicate Response: "+response);
-								console.log("URL Updated");
-								//now try to update
-								$.ajax({
-									url:'php/editurl.php',
-									method:'POST',
-									data:{name:name,id:id,newrl:newrl},
-									dataType: 'JSON',
-									success:function(response){
-										if(response){
-											console.log("URL Updated");
-											var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
-											document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
-											document.getElementById("div"+id).id = "div"+newrl;
-										}else{
-											console.log("Error Updating URL");
-										}
+				var newrl = document.getElementById('url'+id).value;
+				var name = "<?php echo $_SESSION['uname'] ?>";
+				var url = newrl;
+				$.ajax({
+					url:'php/checkactive.php',
+					method:'POST',
+					data:{url:url},
+					dataType: 'JSON',
+					error: function(xhr, error){
+						console.debug(xhr); 
+						console.debug(error);
+					},
+					success:function(response){
+						if(response == 1){
+							console.log("URL Active");
+							//first check for duplicate of this for further validation
+							$.ajax({
+								url:'php/checkurls.php',
+								method:'POST',
+								data:{name:name,newrl:newrl},
+								dataType: 'JSON',
+								success:function(response){
+									if(!response){
+										console.log("No Duplicate Response: "+response);
+										console.log("URL Updated");
+										//now try to update
+										$.ajax({
+											url:'php/editurl.php',
+											method:'POST',
+											data:{name:name,id:id,newrl:newrl},
+											dataType: 'JSON',
+											success:function(response){
+												if(response){
+													console.log("URL Updated");
+													var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
+													document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
+													document.getElementById("div"+id).id = "div"+newrl;
+												}else{
+													console.log("Error Updating URL");
+												}
+											}
+										});
+									}else{					
+										console.log("Duplicate Response: "+response);
 									}
-								});
-							}else{					
-								console.log("Duplicate Response: "+response);
-							}
+								}
+							});								
+						}else{
+							console.log("URL Inactive");
+							return false;
 						}
-					});					
-				}
-			}	}
+					}
+				});		
+
+			}	
+		}
 	});
 }
 

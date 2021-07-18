@@ -14,6 +14,7 @@
 	
 	<div class="container">
 		<h1>Welcome to Bookmarks R Us!</h1>
+		<div id="list"></div>
 		<h2>New user? Start here:</h2>
 		<p><a href="signup.htm">Sign Up</a></p>
 		<h2>Already a member? Sign in here:</h2>
@@ -21,3 +22,21 @@
 	</div>
 </body>
 </html>
+<script>
+//retrieves the top ten urls and displays them
+$(document).ready(function(){
+	$.ajax({
+		url:'php/topurls.php',
+		method:'POST',
+		success:function(response){
+			//console.log(response);
+			if(response){
+				console.log("URLs Retrieved");
+				document.getElementById('list').innerHTML = response;
+			}else{
+				console.log("Failed to get URLs");
+			}
+		}
+	});
+});
+</script>
