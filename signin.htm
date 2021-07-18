@@ -1,0 +1,56 @@
+ <!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<head>	
+	<title>Bookmarks R Us</title>
+	<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+	<link rel="shortcut icon" href="#">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+	<div class="container"> 
+		<span class = "column"><a href="index.htm"><img src = "imgs/bru.png" alt="Bookmarks R Us"/></span><span class = "column"><a href="signup.htm"><img src = "imgs/sup.png" alt="Sign Up"/></a></span><span class = "column"><a href="signin.htm"><img src = "imgs/sin.png" alt="Sign In"/></a></span>
+	</div>
+	
+	<div class="container">
+		<div id="div_login">
+			<h1>Login</h1>
+			<div id="message"></div>
+			<div>
+				<input type="text" class="textbox" id="name" name="name" placeholder="Username" />
+			</div>
+			<div>
+				<input type="password" class="textbox" id="password" name="password" placeholder="Password"/>
+			</div>
+			<div>
+				<input type="button" value="Submit" name="but_submit" id="but_submit" />
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+<script>
+	$(document).ready(function(){
+		$("#but_submit").click(function(){
+			var username = $("#name").val().trim();
+			var password = $("#password").val().trim();
+
+			if( username != "" && password != "" ){
+				$.ajax({
+					url:'php/cu.php',
+					type:'post',
+					data:{username:username,password:password},
+					success:function(response){
+						var msg = "";
+						if(response == 1){
+							window.location = "home.php";
+						}else{
+							msg = "Invalid username and password!";
+						}
+						$("#message").html(msg);
+					}
+				});
+			}
+		});
+	});
+</script>
