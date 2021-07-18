@@ -46,6 +46,7 @@ if(!isset($_SESSION['uname'])){
 <script>
 var addvalid = false;
 var editvalid = false;
+
 //set the validator to check for urls when a new one is being added
 $( "#addurl" ).validate({
 	rules: {
@@ -108,27 +109,46 @@ function edit_click(id){
 			editvalid = false;//set flag to stop submitting form
 		},
 		submitHandler: function(){$('#bms').on('click', 'button', function(){
+			console.log("Here");
 			if(editvalid){
 				//first check this isn't the delete button, as both will trigger this
 				if(event.target.name != "delete"){
 					var id = event.target.id;
 					var newrl = document.getElementById('url'+id).value;
 					var name = "<?php echo $_SESSION['uname'] ?>";
+					//console.log("IDDDD:"+id);
+					//first check for duplicate of this for further validation
 					$.ajax({
-						url:'php/editurl.php',
+						url:'php/checkurls.php',
 						method:'POST',
-						data:{name:name,id:id,newrl:newrl},
+						data:{name:name,newrl:newrl},
+						dataType: 'JSON',
 						success:function(response){
-							if(response){
-								console.log("URL Updated");
-								var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
-								document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
-								document.getElementById("div"+id).id = "div"+newrl;
-							}else{
-								console.log("Error Updating URL");
+							if(!response){
+								console.log("No Duplicate Response: "+response);
+								//now try to update
+								$.ajax({
+									url:'php/editurl.php',
+									method:'POST',
+									data:{name:name,id:id,newrl:newrl},
+									success:function(response){
+										if(response){
+											console.log("URL Updated");
+											console.log("IDDDD:"+id);
+											var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
+											document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
+											document.getElementById("div"+id).id = "div"+newrl;
+										}else{
+											console.log("Error Updating URL");
+										}
+									}
+								});
+							}else{					
+								console.log("Duplicate Response: "+response);
 							}
 						}
 					});
+					
 				}
 			}
 		})}
