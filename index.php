@@ -14,6 +14,7 @@
 	
 	<div class="container">
 		<h1>Welcome to Bookmarks R Us!</h1>
+		<h2>Ten most popular sites:</h2>
 		<div id="list"></div>
 		<h2>New user? Start here:</h2>
 		<p><a href="signup.htm">Sign Up</a></p>
