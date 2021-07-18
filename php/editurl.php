@@ -13,11 +13,11 @@ if ($uname != ""){
 		$sql_query = "UPDATE urls SET url = '".$newrl."' WHERE userid = '".$uid[0]."' AND url = '".$id."'";
 		$result = mysqli_query($con,$sql_query);
 		if($result){
-			echo 1;//just need to let know if failed or not, already have data to change link on screen
+			echo json_encode(1);//just need to let know if failed or not, already have data to change link on screen
 		}else{
-			echo 0;//failed
+			echo json_encode(0);//failed
 		}
 	}else{
-		echo 0;//failed
+		echo json_encode(0);//failed
 	}
 }

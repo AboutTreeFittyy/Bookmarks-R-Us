@@ -16,12 +16,7 @@ if ($uname != ""){
 		} else {
 			echo json_encode(0);
 		}
-		/*if($result->num_rows == 0){
-			echo true;
-		}else{
-			echo false;
-		}*/
 	}else{
-		echo 0;//failed
+		echo json_encode(0);//failed
 	}
 }

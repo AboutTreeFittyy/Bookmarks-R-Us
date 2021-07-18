@@ -56,33 +56,50 @@ $( "#addurl" ).validate({
 		}
 	},
 	success: function(label) {
-    //document.getElementById("addurl").disabled = false;
 	console.log("SUCCESS");
 	addvalid = true;//set flag to allow for submission
   },
 	invalidHandler: function(event, validator) {
-    //document.getElementById("addurl").disabled = true;
 	console.log("FAILURE");
 	addvalid = false;//set flag to stop submitting form
   },
   submitHandler: function(){ 
 		if(addvalid){
-			var name = "<?php echo $_SESSION['uname'] ?>";
-			//console.log(name);		
-			var nurl=$("#url").val();
+			var name = "<?php echo $_SESSION['uname'] ?>";	
+			var newrl=$("#url").val();
+			//console.log(newrl);
 			$.ajax({
-				url:'php/addurl.php',
+				url:'php/checkurls.php',
 				method:'POST',
-				data:{nurl:nurl,name:name},
+				data:{name:name,newrl:newrl},
+				dataType: 'JSON',
 				success:function(response){
-					//console.log(response);
-					if(response == 1){
-						console.log("URL added");
-					}else{
-						console.log("Failed to add URL");
+					if(!response){
+						console.log("No Duplicate Response: "+response);
+						//now try to update
+						$.ajax({
+							url:'php/addurl.php',
+							method:'POST',
+							data:{newrl:newrl,name:name},
+							dataType: 'JSON',
+							error: function(xhr, error){
+								console.debug(xhr); 
+								console.debug(error);
+							},
+							success:function(response){
+								//console.log("Response: "+response);
+								if(response == 1){
+									console.log("URL added");
+								}else{
+									console.log("Failed to add URL");
+								}
+							}
+						});
+					}else{					
+						console.log("Duplicate Response: "+response);
 					}
 				}
-			});
+			});	
 		}
 	}
 });
@@ -129,15 +146,16 @@ function edit_click(id){
 						success:function(response){
 							if(!response){
 								console.log("No Duplicate Response: "+response);
+								console.log("URL Updated");
 								//now try to update
 								$.ajax({
 									url:'php/editurl.php',
 									method:'POST',
 									data:{name:name,id:id,newrl:newrl},
+									dataType: 'JSON',
 									success:function(response){
 										if(response){
 											console.log("URL Updated");
-											console.log("IDDDD:"+id);
 											var div = '<a href="'+newrl+'">'+newrl+'</a><button onClick="edit_click(this.id)" id="'+newrl+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+newrl+'">Delete</button>';
 											document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
 											document.getElementById("div"+id).id = "div"+newrl;

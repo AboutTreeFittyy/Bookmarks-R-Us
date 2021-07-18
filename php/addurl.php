@@ -1,7 +1,7 @@
  <?php
 include "config.php";
 
-$url = mysqli_real_escape_string($con,$_POST['nurl']);
+$url = mysqli_real_escape_string($con,$_POST['newrl']);
 $uname = mysqli_real_escape_string($con,$_POST['name']);
 
 if ($uname != "" && $url != ""){
@@ -13,11 +13,11 @@ if ($uname != "" && $url != ""){
 		$uid = mysqli_fetch_array($userid);
 		$sql_query = "INSERT INTO `urls` (`id`, `userid`, `url`) VALUES (NULL, '".$uid[0]."', '".$url."')";
 		if(mysqli_query($con,$sql_query)){
-			echo 1;//success
+			echo json_encode(1);
 		}else{
-			echo 0;//failed
+			echo json_encode(0);
 		}
 	}else{
-		echo 0;//failed
+		echo json_encode(0);//failed
 	}
 }
