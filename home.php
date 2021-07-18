@@ -11,7 +11,7 @@ if(!isset($_SESSION['uname'])){
 <meta charset="utf-8">
 <head>	
 	<title>Bookmarks R Us</title>
-	<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
 	<link rel="shortcut icon" href="#">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -19,10 +19,6 @@ if(!isset($_SESSION['uname'])){
 	<div class="container"> 
 		<span class = "column"><img src = "imgs/bru.png" alt="Bookmarks R Us"/></span><span class = "column"><a href="logout.php"><img src = "imgs/lo.png" alt="Logout"/></a></span>
 	</div>	
-	
-	<div class="container">
-		<h1>Welcome to Bookmarks R Us!</h1>
-	</div>
 	
 	<div class="container">
 		<h1>Your Bookmarks:</h1>
@@ -46,29 +42,7 @@ if(!isset($_SESSION['uname'])){
 <script>
 var addvalid = false;
 var editvalid = false;
-function siteExists(url){
-	//now try to update
-	$.ajax({
-		url:'php/checkactive.php',
-		method:'POST',
-		data:{url:url},
-		dataType: 'JSON',
-		error: function(xhr, error){
-			console.debug(xhr); 
-			console.debug(error);
-		},
-		success:function(response){
-			//console.log("Response: "+response);
-			if(response == 1){
-				console.log("URL Active");
-				return true;
-			}else{
-				console.log("URL Inactive");
-				return false;
-			}
-		}
-	});
-}
+
 //set the validator to check for urls when a new one is being added
 $( "#addurl" ).validate({
 	rules: {
@@ -125,6 +99,21 @@ $( "#addurl" ).validate({
 											//console.log("Response: "+response);
 											if(response == 1){
 												console.log("URL added");
+												//reload the list
+												$.ajax({
+													url:'php/geturls.php',
+													method:'POST',
+													data:{name:name},
+													success:function(response){
+														//console.log(response);
+														if(response){
+															console.log("URLs Retrieved");
+															document.getElementById('bms').innerHTML = response;
+														}else{
+															console.log("Failed to get URLs");
+														}
+													}
+												});
 											}else{
 												console.log("Failed to add URL");
 											}

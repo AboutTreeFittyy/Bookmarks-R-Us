@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <head>	
 	<title>Bookmarks R Us</title>
-	<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
 	<link rel="shortcut icon" href="#">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
