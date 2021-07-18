@@ -87,10 +87,16 @@ $( "#addurl" ).validate({
 	}
 });
 
+//just simple cancel functionality to cancel making changes to the url
+function cancel_edit(id){
+	var div = '<a href="'+id+'">'+id+'</a><button onClick="edit_click(this.id)" id="'+id+'">Edit</button><button name="delete" onClick="delete_click(this.id)" id="'+id+'">Delete</button>';
+	document.getElementById("div"+id).innerHTML = div;//update it back to normal list with the new value
+}
+
 //handler for the edit button, hooks to make form for editing
 function edit_click(id){
 	var html = document.getElementById("div"+id);
-	var div = '<form id="editurl"><label>URL:</label><input class="left" name="field" value="'+id+'"type="text" id="url'+id+'"><button id="'+id+'">Save</button></form>';
+	var div = '<form id="editurl"><label>URL:</label><input class="left" name="field" value="'+id+'"type="text" id="url'+id+'"><button id="'+id+'">Save</button><button onClick="cancel_edit(this.id)" id="'+id+'">Cancel</button></form>';
 	html.innerHTML = div;
 	//Now add the validation check after its added to the DOM
 	$( "#editurl" ).validate({
@@ -109,7 +115,6 @@ function edit_click(id){
 			editvalid = false;//set flag to stop submitting form
 		},
 		submitHandler: function(event){
-			console.log("Here");
 			if(editvalid){
 				//first check this isn't the delete button, as both will trigger this
 				if(event.target.name != "delete"){
@@ -145,8 +150,7 @@ function edit_click(id){
 								console.log("Duplicate Response: "+response);
 							}
 						}
-					});
-					
+					});					
 				}
 			}	}
 	});
